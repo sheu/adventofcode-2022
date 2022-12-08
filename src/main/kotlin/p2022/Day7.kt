@@ -21,41 +21,19 @@ class TreeNode<T>(
 
     fun getValue() = value
     fun getChildren() = children.toList()
-    fun addChildren(listOfChildren: List<TreeNode<T>>) {
-        listOfChildren.forEach { add(it) }
-    }
 
-    fun countSize(sizes: MutableList<Pair<T, Long>>, counter: (T) -> Long, nameExtractor: (T) -> T): Long {
+
+    fun countSize(sizes: MutableList<Pair<T, Long>>, counter: (T) -> Long, keyExtractor: (T) -> T): Long {
         val result = counter(this.getValue())
         var childrenResult = 0L
         for (e in children) {
-            childrenResult += e.countSize(sizes, counter, nameExtractor)
+            childrenResult += e.countSize(sizes, counter, keyExtractor)
         }
-        sizes.add(nameExtractor(this.getValue()) to result + childrenResult)
+        sizes.add(keyExtractor(this.getValue()) to result + childrenResult)
         return result + childrenResult
     }
 
     fun getParent() = parent
-    fun findOrNull(predicate: (T) -> Boolean): T? {
-        if (predicate(this.getValue())) {
-            return getValue()
-        } else {
-            val files = children.filter { it.children.isEmpty() }
-            for (f in files) {
-                if (predicate(f.value)) {
-                    return f.value
-                }
-            }
-            val dir = children.filter { it.children.isNotEmpty() }
-            dir.forEach {
-                val result = it.findOrNull(predicate)
-                if (result != null) {
-                    return result
-                }
-            }
-        }
-        return null
-    }
 
 
 }
@@ -131,9 +109,7 @@ ${'$'} ls
 
     val finalResult = finalFileToSize
         .asSequence()
-        .filter { it.first.isDirectory }
-        .map { it.first.name to it.second }
-        .filter { it.second <= 100_000 }
+        .filter { it.first.isDirectory && it.second <= 100_000 }
         .sumOf { it.second }
 
     println(finalResult)
@@ -149,11 +125,7 @@ ${'$'} ls
     val requiredSpace = desiredSize - remainder
     val part2Result = finalFileToSize
         .asSequence()
-        .filter { it.first.isDirectory }
-        .map { it.first.name to it.second }
-        .filter { it.second >= requiredSpace }
-        .sortedBy { it.second }.first().second
+        .filter { it.first.isDirectory  && it.second >= requiredSpace }
+        .minBy { it.second }.second
     println(part2Result)
-
-
 }

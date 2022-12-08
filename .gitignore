@@ -1,0 +1,7 @@
+### specific
+.idea
+*.iml
+.gradle
+
+# gradle
+build/
